@@ -20,3 +20,14 @@ after_success:
   - docker push harlesbayu/multi-nginx
   - docker push harlesbayu/multi-server
   - docker push harlesbayu/multi-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: ap-southeast-1
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:  $AWS_SECRET_KEY
+  app: multi-docker
+  env: MultiDocker-env
+  bucket-name: elasticbeanstalk-ap-southeast-1-089372333993
+  on:
+    branch: master
