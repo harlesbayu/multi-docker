@@ -1,33 +1,36 @@
 sudo: required
+language: generic
+
 services:
   - docker
 
 before_install:
-  - docker build -t harlesbayu/react-test -f ./client/Dockerfile.dev ./client
+  - docker build -t stephengrider/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run -e CI=true harlesbayu/react-test npm run test -- --coverage
+  - docker run stephengrider/react-test npm test -- --coverage
 
 after_success:
-  - docker build -t harlesbayu/multi-client ./client
-  - docker build -t harlesbayu/multi-nginx ./nginx
-  - docker build -t harlesbayu/multi-server ./server
-  - docker build -t harlesbayu/multi-worker ./worker
-  # login to docker CLI
+  - docker build -t stephengrider/multi-client ./client
+  - docker build -t stephengrider/multi-nginx ./nginx
+  - docker build -t stephengrider/multi-server ./server
+  - docker build -t stephengrider/multi-worker ./worker
+  # Log in to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-  # take those image and push them to docker hub
-  - docker push harlesbayu/multi-client
-  - docker push harlesbayu/multi-nginx
-  - docker push harlesbayu/multi-server
-  - docker push harlesbayu/multi-worker
+  # Take those images and push them to docker hub
+  - docker push stephengrider/multi-client
+  - docker push stephengrider/multi-nginx
+  - docker push stephengrider/multi-server
+  - docker push stephengrider/multi-worker
 
 deploy:
   provider: elasticbeanstalk
-  region: ap-southeast-1
-  access_key_id: $AWS_ACCESS_KEY
-  secret_access_key:  $AWS_SECRET_KEY
-  app: multi-docker
-  env: MultiDocker-env
-  bucket-name: elasticbeanstalk-ap-southeast-1-089372333993
+  region: 'ap-southeast-1'
+  app: 'multi-docker'
+  env: 'MultiDocker-env'
+  bucket_name: 'elasticbeanstalk-ap-southeast-1-089372333993'
+  bucket_path: 'docker-multi'
   on:
     branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
